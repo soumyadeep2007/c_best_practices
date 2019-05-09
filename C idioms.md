@@ -1,6 +1,15 @@
 # C idioms
 
 ## Robust error checking on system calls
+### The wrong
+```c
+ret_val = system_or_lib_call(...);
+if(errno) {...} OR if(errno == ...){}
+/* Why is it wrong? Successful syscalls DO NOT reset errno to zero!
+ * So in effect we might be checking against the value of errno that
+ * was set in a prior system call.
+ */
+```
 ### The right
 ```c
 ret_val = system_or_lib_call(..);
@@ -11,15 +20,6 @@ if(check if ret_val signals an error condition) //typically -1, NULL etc.
 		//handle specific case
 	}
 }
-```
-### The wrong
-```c
-ret_val = system_or_lib_call(...);
-if(errno) {...} OR if(errno == ...){}
-/* Why is it wrong? Successful syscalls DO NOT reset errno to zero!
- * So in effect we might be checking against the value of errno that
- * was set in a prior system call.
- */
 ```
 ### The very right
 ```c
