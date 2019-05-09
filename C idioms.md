@@ -118,8 +118,9 @@ struct ComplexType arr[SOME_SIZE];
 struct ComplexType zeroArr[SOME_SIZE] = {0};
 // Manipulate a and arr and fill it with values
 ...
-// Now reset it.
-a = {0};
+// Note a = {0}; will not work as this is initializer syntax
+// So we need to use a member-by-member copy of the struct
+a = zero;
 // Since we can't do array assignment.
 memcpy(arr, zeroArr, sizeof arr);
 ```
@@ -142,7 +143,7 @@ if (ptr = NULL)
  ```c
  char *str = "string";
  ch[0] = 't';
- printf("%s", "ttring"); // May print "ttring"
+ printf("%s", "string"); // May print "ttring"
  ```
 So the rule of thumb is to init the string as an array only if we plan to modify it. We should init it with a const pointer otherwise.
 
