@@ -33,7 +33,7 @@ if(check if ret_val signals an error condition) //typically -1, NULL etc.
 	}
 }
 ```
-Example of where the "very right" is necessary: [strtol](https://stackoverflow.com/a/11342986)
+Example of where the "very right" is necessary: [strtol](https://stackoverflow.com/a/11342986). strtol's possible set of return values on error overlaps with it's possible set of return values on success. So there is no guarantee that the value returned signals error. We would have to look at errno - Now if we don't reset errno and errno was already set to a non-zero value prior to the call to strtol(), we may arrive at the conclusion that there was an error where there was none. Demo: search errno=0
 
 
 ## Apply sizeof on variables instead of types
@@ -131,7 +131,7 @@ if (ptr = NULL)
 ```
 
 ## String variable initializer - array or pointer? const?
-```char str[] = "a_string";``` OR  ```char *str = "a_string";``` OR  ```const char *str = "a_string";``` ?
+```char str[] = "string";``` OR  ```char *str = "string";``` OR  ```const char *str = "string";``` ?
  
  There are major differences in memory layout between the two.
  
@@ -145,3 +145,32 @@ if (ptr = NULL)
  printf("%s", "ttring"); // May print "ttring"
  ```
 So the rule of thumb is to init the string as an array only if we plan to modify it. We should init it with a const pointer otherwise.
+
+## Some string returning/modifying lib/sys calls DON'T supply '\0' - Be paranoid!
+
+```c
+rllen = readlink(linkLHS, linkRHS, sizeof(linkRHS));
+if (rllen < 0)
+{
+...
+}
+else if (rllen >= sizeof(linkRHS))
+{
+...
+}
+// I mean WHHHYYYY????
+linkRHS[rllen] = '\0'; // I missed this and paid the price
+```
+
+[readlink CWE](https://cwe.mitre.org/data/definitions/170.html)
+
+## Bibliography
+1. [Adam Tornhill's blog](https://www.adamtornhill.com/)
+2. [C Primer Plus - Prata](https://learning.oreilly.com/library/view/c-primer-plus/9780133432398/)
+3. [TLPI] (https://learning.oreilly.com/library/view/the-linux-programming/9781593272203/)
+
+## Possible topics for next time:
+1. Storage classes/areas/myths/modifiers and their twisted relations with scope - Eg. What exactly is static and when? [Prata]
+2. Multi-file C - what the hell is extern?, declaration vs definition, best practices, header guards and more! [Prata]
+3. Patterns: state, strategy, observer etc. [Adam Tornhill]
+4. Topics from ["C Interfaces and Implementations: Techniques for Creating Reusable Software"](https://learning.oreilly.com/library/view/c-interfaces-and/9780321562807/)
